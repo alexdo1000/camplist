@@ -9,7 +9,10 @@ var express     = require("express"),
     Campground  = require("./models/campground"),
     Comment     = require("./models/comment"),
     User        = require("./models/user"),
-    seedDB      = require("./seeds");
+    seedDB      = require("./seeds"),
+    dotenv      = require('dotenv');
+
+dotenv.config();
 
 // Requiring Routes
 var commentRoutes       = require("./routes/comments"),
@@ -17,7 +20,16 @@ var commentRoutes       = require("./routes/comments"),
     indexRoutes         = require("./routes/index");
 
 mongoose.set('useUnifiedTopology', true);
-mongoose.connect("mongodb://localhost/yelp_camp", { useNewUrlParser: true })
+// "mongodb+srv://" + process.env.DB_USER + ":" + process.env.DB_PASS + "@cluster0.favaz.mongodb.net/"+ process.env.DB_NAME +"?retryWrites=true&w=majority"
+mongoose.connect(process.env.DB_URL, { 
+    useNewUrlParser: true,
+    useCreateIndex: true
+}).then(() => {
+    console.log("Connected to database");
+}).catch(err => {
+    console.log("ERROR: ", err.message);
+})
+
 app.use(bodyParser.urlencoded({extended:true}));
 app.set("view engine", "ejs");
 app.use(express.static(__dirname + "/public"));
@@ -67,5 +79,5 @@ app.use("/campgrounds/:id/comments", commentRoutes);
 
 var port = process.env.PORT || 3000;
 app.listen(port, function(){
-    console.log("YelpCamp Server has started!");
+    console.log("Server has started!");
 });
